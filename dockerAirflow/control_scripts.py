@@ -236,7 +236,7 @@ class Masterdata():
         return False
 
 #===============================GET FILE===============================#        
-    def get_file (self, file_id:int):
+    def get_file (self, file_id:int, path:Path):
         report_type_query = f"SELECT file_name,file FROM sma_stat_dep.tbl_files \
                              WHERE id = {file_id};"
 
@@ -258,18 +258,18 @@ class Masterdata():
                         # print(openpyxl.load_workbook(workbook_xml))
                     
                     wb = openpyxl.load_workbook(workbook_xml)
-                    file_path = Path(__file__).parent.parent /'files'/ file_name
+                    file_path = path / file_name
                     wb.save(file_path)
                     print (f'   #>{datetime.now()}_file was created: {file_path}')
                     wb.close()
-                    return wb
+                    return file_name
             except(Exception, psycopg2.Error) as error: 
                 print(error)
                 return error
             
 
 #===============================GET FILE_LOGS===============================#        
-    def get_file_logs (self, file_id:int):
+    def get_file_logs (self, file_id:int, path:Path):
         report_type_query = f"SELECT file_name,logs FROM sma_stat_dep.tbl_files \
                              WHERE id = {file_id};"
 
@@ -290,15 +290,105 @@ class Masterdata():
                         "file_logs":res[1]
                     }
                     # print(res[0])
-                    file_path = Path(__file__).parent.parent /'files'/ f'{res["file_id"]}_{res['file_name'][:-5]}.txt'
+                    file_path = path / f'{res["file_id"]}_{res["file_name"][:-5]}.txt'
                     with open(file_path,'w') as file:
                         file.write(res['file_logs'])
 
-                    return f'{res["file_id"]}_{res['file_name'][:-5]}.txt','w'
+                    return f'{res["file_id"]}_{res["file_name"][:-5]}.txt'
             except(Exception, psycopg2.Error) as error: 
                 print(error)
                 return error
-                
+
+
+#===============================GET_PERIOD_IDS============================#  
+    def get_period_ids(self, from_date:datetime, to_date:datetime, 
+                           period_type_code:str):
+        print (f'   #>{datetime.now()}_get_ent_attributes') 
+        from_date = from_date
+        to_date = to_date
+        period_type_code = period_type_code
+
+        get_report_ids = "select * from db_stat_dep.sma_stat_dep.tbl_period \
+                        where db_stat_dep.sma_stat_dep.tbl_period.""type"" = %s \
+                        and db_stat_dep.\
+                            sma_stat_dep.\
+                                tbl_period.from_date >= %s\
+                        and db_stat_dep.\
+                            sma_stat_dep.\
+                                tbl_period.from_date <= %s;"
+
+        with psycopg2.connect(dbname=self.db_name, user=self.db_user, 
+                            password=self.db_pass, 
+                            host=self.db_host) as conn:
+            print (f'   #>{datetime.now()}connection is successfuly.') 
+            with conn.cursor() as cursor:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                cursor.execute(get_report_ids, (from_date, to_date, period_type_code))
+                print (f'   #>{datetime.now()}_cursor execution is '
+                                'successful.')
+                # Getting information for files submission from 
+                # tbl_file_upload
+                upload_data = cursor.fetchall()
+                return upload_data
+            raise Exception("get_ent_attributes is not successful!")
+                    
+#================================END=====================================#   
+
+#===============================GET_ENT_ATTRIBUTES============================#  
+    def get_ent_attributes(self, report_type_id:int, period_ids:tuple, 
+                           bank_ids:tuple):
+        print (f'   #>{datetime.now()}_starting get_ent_attributes') 
+        report_type_id = report_type_id
+        period_ids = period_ids
+        bank_ids = bank_ids
+
+        get_uploads_query = "select \
+            db_stat_dep.sma_stat_dep.tbl_attr_values.a_value as a_value, \
+	        db_stat_dep.sma_stat_dep.tbl_ent.code as ent_code\
+            from db_stat_dep.sma_stat_dep.tbl_attr_values \
+            inner join \
+            ( \
+                select distinct on \
+                    (db_stat_dep.sma_stat_dep.\
+                        tbl_file_per_schedule.schedule_id)\
+                    db_stat_dep.sma_stat_dep. \
+                        tbl_file_per_schedule.id as file_id \
+                from db_stat_dep.sma_stat_dep.tbl_schedule \
+                left join db_stat_dep.sma_stat_dep.tbl_file_per_schedule \
+                    on db_stat_dep.sma_stat_dep.tbl_schedule.id = \
+                    db_stat_dep.\
+                        sma_stat_dep.tbl_file_per_schedule.schedule_id \
+                where db_stat_dep.sma_stat_dep.tbl_schedule.report_type_id = \
+                      %s \
+                and db_stat_dep.sma_stat_dep.tbl_schedule.period_id in %s \
+                and db_stat_dep.sma_stat_dep.tbl_schedule.bank_id in %s \
+                order by \
+                    db_stat_dep.\
+                        sma_stat_dep.tbl_file_per_schedule.schedule_id\
+                    , db_stat_dep.sma_stat_dep.tbl_file_per_schedule.id desc \
+            ) \
+            as tbl_interim_query \
+            on tbl_interim_query.file_id = \
+                db_stat_dep\
+                    .sma_stat_dep.tbl_attr_values.file_per_schedule_id \
+            left join db_stat_dep.sma_stat_dep.tbl_ent \
+            on db_stat_dep.sma_stat_dep.tbl_ent.id = \
+                db_stat_dep.sma_stat_dep.tbl_attr_values.ent_id;"
+
+        with psycopg2.connect(dbname=self.db_name, user=self.db_user, 
+                            password=self.db_pass, 
+                            host=self.db_host) as conn:
+            print (f'   #>{datetime.now()}connection is successfuly.') 
+            with conn.cursor() as cursor:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                cursor.execute(get_uploads_query, (report_type_id, tuple(period_ids) \
+                                , tuple(bank_ids)))
+                print (f'   #>{datetime.now()}_cursor execution is '
+                                'successful.')
+                # Getting information for files submission from 
+                # tbl_file_upload
+                upload_data = cursor.fetchall()
+                return upload_data
+            raise Exception("get_ent_attributes is not successful!")
+                    
 #================================VERSIONS=====================================#        
     def create_version (self, code:str, name:str):
         m = f'   #>{datetime.now()}_creating version {code}'
@@ -402,19 +492,28 @@ class Masterdata():
     #===============================MONITOR REPORTS==============================#
     def monitor_report (self,bank_object=None):
         arguments = ''
-        for el in bank_object.keys():
-            if(el=='from_date'):
-                arguments += f" and {el}>=%s"
-            elif(el=='to_date'):
-                arguments += f" and {el}<=%s"
-            elif(el=='report_code'):
-                arguments += f" and db_stat_dep.sma_stat_dep.tbl_report_type.code=%s"
-            else:
-                arguments += f" and {el}=%s"
-        arguments = arguments[4:]
+        if not bank_object is None:
+            n_arg = 0
+            for el in bank_object.keys():
+                if n_arg != 0: arguments += ' and'
+                else: arguments += ' where'       
+                if(el=='from_date'):
+                    arguments += f" {el} >= %s"
+                elif(el=='to_date'):
+                    arguments += f" {el} <= %s"
+                elif(el=='report_code'):
+                    arguments += f" db_stat_dep.sma_stat_dep.tbl_report_type.code = %s"
+                else:
+                    arguments += f" {el} = %s"
+                n_arg += 1
+            query_values = list(bank_object.values())
+        else:
+            query_values = ''
+
         print(f'   #>{datetime.now()}_monitor_report arguments: {arguments}')
         select_query = f"select db_stat_dep.sma_stat_dep.tbl_schedule.id as schedule_id,\
             db_stat_dep.sma_stat_dep.tbl_file_per_schedule.file_id as fps_file_id,\
+            db_stat_dep.sma_stat_dep.tbl_file_upload.email_datetime as upload_tmstp,\
             db_stat_dep.sma_stat_dep.tbl_files.upload_status as upload_status,\
             db_stat_dep.sma_stat_dep.tbl_report_type.code as report_code,\
             db_stat_dep.sma_stat_dep.tbl_entities.type as entity_type,\
@@ -427,17 +526,18 @@ class Masterdata():
             from db_stat_dep.sma_stat_dep.tbl_schedule\
             left join db_stat_dep.sma_stat_dep.tbl_file_per_schedule\
                 on db_stat_dep.sma_stat_dep.tbl_schedule.id=db_stat_dep.sma_stat_dep.tbl_file_per_schedule.schedule_id \
-            left join db_stat_dep.sma_stat_dep.tbl_files\
+            full join db_stat_dep.sma_stat_dep.tbl_files\
                 on db_stat_dep.sma_stat_dep.tbl_files.id=db_stat_dep.sma_stat_dep.tbl_file_per_schedule.file_id\
+            left join db_stat_dep.sma_stat_dep.tbl_file_upload\
+                on db_stat_dep.sma_stat_dep.tbl_files.id_file_upload =db_stat_dep.sma_stat_dep.tbl_file_upload.id\
             left join db_stat_dep.sma_stat_dep.tbl_entities\
                 on db_stat_dep.sma_stat_dep.tbl_schedule.bank_id=db_stat_dep.sma_stat_dep.tbl_entities.id\
             left join db_stat_dep.sma_stat_dep.tbl_report_type\
                 on db_stat_dep.sma_stat_dep.tbl_schedule.report_type_id=db_stat_dep.sma_stat_dep.tbl_report_type.id\
             left join db_stat_dep.sma_stat_dep.tbl_period\
                 on db_stat_dep.sma_stat_dep.tbl_schedule.period_id=db_stat_dep.sma_stat_dep.tbl_period.id \
-        where {arguments} "
-        
-        query_values = list(bank_object.values())
+            {arguments}"
+
         print(f'   #>{datetime.now()}_monitor_report arguments: {query_values}')
         # insert_values = ['2024-08-01', '2024-08-31', '4915', '1A']
         # print(insert_query)
@@ -462,7 +562,7 @@ class Masterdata():
 
     #===============================UPDATE BANK==============================#
     def update_bank (self,bank_object):
-        m = f'   #>{datetime.now()}_creating bank with ID {bank_object['entity_id']}'
+        m = f'   #>{datetime.now()}_creating bank with ID {bank_object["entity_id"]}'
         print (m)
         arguments = ''
         for el in bank_object.keys():
