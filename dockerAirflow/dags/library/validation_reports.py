@@ -542,7 +542,7 @@ def get_hello():
                                                     # cursor.execute(text,mass[0]) 
 
                                                     # multiple line
-                                                    print(f"    добавление данных в БД--- {db_query_values}")
+                                                    # print(f"    добавление данных в БД--- {db_query_values}")
                                                     execute_values(cursor,
                                                     "INSERT INTO sma_stat_dep.tbl_attr_values (ent_id,file_per_schedule_id,a_value) VALUES %s",
                                                     db_query_values)
@@ -786,7 +786,7 @@ def get_hello():
             except (Exception, psycopg2.Error) as error:
                 print("Error while fetching data from PostgreSQL", error,traceback.print_exc())
         try:
-            postgres_insert_query = f"select id from sma_stat_dep.tbl_files WHERE upload_status=1 limit 2"
+            postgres_insert_query = f"select id_file_upload from sma_stat_dep.tbl_files WHERE upload_status=1 limit 2"
             # postgres_insert_query = f"select * from sma_stat_dep.tbl_files WHERE id=62 and upload_status=1"
             
             
