@@ -10,7 +10,7 @@ import json
 
 
 loc_tzon = pytz.timezone('Asia/Dushanbe')
-start_date = datetime(2025, 6, 9, 10, 0, 0 ,0, tzinfo = loc_tzon)
+start_date = datetime(2025, 6, 14, 10, 0, 0 ,0, tzinfo = loc_tzon)
 
 
 default_args = {
@@ -22,30 +22,22 @@ default_args = {
 #     'xcom_pb',
 #     default_args=default_args,
 #     # schedule_interval='0 0 1-15 * 1',
-#     schedule_interval='* */15 * * *',
+#     schedule_interval='* */10 * * *',
 #     max_active_runs=1
 # )
 
 def track_runs(**kwargs):
-    ti = kwargs['ti']
-    run_count = ti.xcom_pull(key='run_count', task_ids='track_runs', include_prior_dates=True) or 0
-    print (f' fun_count @@@@@ {run_count}')
-    run_count = int(run_count)
     start_parse()
 
-    if run_count >= 100:
-        raise ValueError("Превышен максимальное количество запусков DAG.")
-
-    ti.xcom_push(key='run_count', value=run_count + 1)
 
 
 with DAG(
-    dag_id= 'osb_parser',
+    dag_id= 'osb_parser_5m',
     default_args = default_args,
-    schedule_interval='*/15 * * * *',
+    schedule_interval='*/5 * * * *',
     catchup=False,
     max_active_runs=1,
-    tags=['Парсинг ОСБ']
+    tags=['Парсинг']
 
 ) as dag:
     track_task = PythonOperator(
