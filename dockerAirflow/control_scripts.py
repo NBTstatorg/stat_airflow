@@ -1,7 +1,7 @@
 import psycopg2
 import json
 import pandas as pd
-import xlwings 
+# import xlwings 
 from datetime import datetime
 from pathlib import Path
 from math import ceil
@@ -301,35 +301,153 @@ class Masterdata():
 
 
 #===============================GET_PERIOD_IDS============================#  
-    def get_period_ids(self, from_date:datetime, to_date:datetime, 
-                           period_type_code:str):
-        print (f'   #>{datetime.now()}_get_ent_attributes') 
-        from_date = from_date
-        to_date = to_date
-        period_type_code = period_type_code
-
-        get_report_ids = "select * from db_stat_dep.sma_stat_dep.tbl_period \
+    def get_period(self, period_type_id:int,
+                    from_date:datetime, to_date:datetime):
+        print (f'   #>{datetime.now()}_get_period') 
+        from_date = from_date.strftime("%Y-%m-%d")
+        to_date = to_date.strftime("%Y-%m-%d")
+        period_type_id = period_type_id
+        get_report_ids = "select id, type, from_date, to_date, order_number\
+                         from db_stat_dep.sma_stat_dep.tbl_period \
                         where db_stat_dep.sma_stat_dep.tbl_period.""type"" = %s \
                         and db_stat_dep.\
                             sma_stat_dep.\
                                 tbl_period.from_date >= %s\
                         and db_stat_dep.\
                             sma_stat_dep.\
-                                tbl_period.from_date <= %s;"
+                                tbl_period.to_date <= %s;"
 
         with psycopg2.connect(dbname=self.db_name, user=self.db_user, 
                             password=self.db_pass, 
                             host=self.db_host) as conn:
             print (f'   #>{datetime.now()}connection is successfuly.') 
             with conn.cursor() as cursor:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                cursor.execute(get_report_ids, (from_date, to_date, period_type_code))
+                cursor.execute(get_report_ids, (  period_type_id \
+                                                , from_date, to_date))
                 print (f'   #>{datetime.now()}_cursor execution is '
                                 'successful.')
                 # Getting information for files submission from 
                 # tbl_file_upload
                 upload_data = cursor.fetchall()
                 return upload_data
-            raise Exception("get_ent_attributes is not successful!")
+            raise Exception("get_period is not successful!")
+                    
+#================================END=====================================#   
+
+#===============================GET_PERIOD_IDS============================#  
+    def get_shcedule_by_period(self, report_type_id: int, period_type:int, from_date: datetime, to_date: datetime):
+        print (f'   #>{datetime.now()}_get_shcedule_by_period') 
+
+        period_ids = tuple ([x[0]for x in self.get_period(period_type, from_date, to_date)])
+
+        query = "SELECT id, report_type_id, bank_id, period_id, version_id\
+                        , reporting_window FROM sma_stat_dep.tbl_schedule \
+                          WHERE report_type_id = %s \
+                          AND period_id in %s;"
+
+        with psycopg2.connect(dbname=self.db_name, user=self.db_user, 
+                            password=self.db_pass, 
+                            host=self.db_host) as conn:
+            print (f'   #>{datetime.now()}connection is successfuly.') 
+            with conn.cursor() as cursor:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                cursor.execute(query, (report_type_id, period_ids))
+                print (f'   #>{datetime.now()}_cursor execution is '
+                                'successful.')
+                # Getting information for files submission from 
+                # tbl_file_upload
+                data = cursor.fetchall()
+                return data
+            raise Exception("get_shcedule_by_period is not successful!")
+                    
+#================================END=====================================# 
+
+#===============================GET_PERIOD_IDS============================#  
+    def get_report_type(self, report_code:str):
+        print (f'   #>{datetime.now()}_get_report_type_ids') 
+
+        get_report_ids = 'select id, code, version, name\
+                         ,report_period_type from \
+                          db_stat_dep.sma_stat_dep\
+                          .tbl_report_type where code = %s;'
+
+        with psycopg2.connect(dbname=self.db_name, user=self.db_user, 
+                            password=self.db_pass, 
+                            host=self.db_host) as conn:
+            print (f'   #>{datetime.now()}connection is successfuly.') 
+            with conn.cursor() as cursor:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                cursor.execute(get_report_ids, (report_code,))
+                print (f'   #>{datetime.now()}_cursor execution is '
+                                'successful.')
+                # Getting information for files submission from 
+                # tbl_file_upload
+                upload_data = cursor.fetchone()
+                return upload_data
+            raise Exception("get_report_type_ids is not successful!")
+                    
+#================================END=====================================#   
+
+#===============================GET_FI_IDS============================#  
+    def get_entities_by_bic4(self, entities:tuple = None, 
+                                  ent_type:tuple = None, 
+                                  status:int = None,
+                                  lable:int = None):
+        print (f'   #>{datetime.now()}_get_entities_ids') 
+
+        if not lable: lable = 0
+        if (entities is None) and (ent_type is None) \
+            and (status is None) and (lable == 0):
+            get_report_ids = 'select id, code, bic4, name, type, label_id, status \
+                              from db_stat_dep\
+                             .sma_stat_dep.tbl_entities '
+            param = None
+    
+        elif (entities is None) and (ent_type is not None) \
+            and (status is None) and (lable == 0):
+            get_report_ids = 'select \
+                                id, code, bic4, name, type, label_id, status\
+                              from db_stat_dep .sma_stat_dep.tbl_entities \
+                                where type in %s'
+            param = (ent_type,)
+
+        elif (entities is None) and (ent_type is None)\
+              and (status is not None):
+            get_report_ids = 'select \
+                                id, code, bic4, name, type, label_id, status\
+                              from db_stat_dep.sma_stat_dep.tbl_entities \
+                                where status in %s \
+                                and label_id in %s'
+            param = (status, lable)
+
+        elif (entities is None) and (ent_type is not None)\
+              and (status is not None):
+            get_report_ids = 'select \
+                                id, code, bic4, name, type, label_id, status \
+                                from db_stat_dep.sma_stat_dep.tbl_entities \
+                                where type in %s \
+                                    and status in %s  \
+                                    and label_id in %s'
+            param = (ent_type, status, lable)   
+ 
+        elif (entities is not None):
+            get_report_ids = 'select \
+                                id, code, bic4, name, type, label_id, status \
+                              from db_stat_dep.sma_stat_dep.tbl_entities \
+                                where bic4 in %s'
+            param = (entities,)
+
+        with psycopg2.connect(dbname=self.db_name, user=self.db_user, 
+                            password=self.db_pass, 
+                            host=self.db_host) as conn:
+            print (f'   #>{datetime.now()}_connection is successfuly.') 
+            with conn.cursor() as cursor:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                cursor.execute(get_report_ids, param)
+                print (f'   #>{datetime.now()}_cursor execution is '
+                                'successful.')
+                # Getting information for files submission from 
+                # tbl_file_upload
+                upload_data = cursor.fetchall()
+                return upload_data
+            raise Exception("get_report_type_ids is not successful!")
                     
 #================================END=====================================#   
 
@@ -343,7 +461,9 @@ class Masterdata():
 
         get_uploads_query = "select \
             db_stat_dep.sma_stat_dep.tbl_attr_values.a_value as a_value, \
-	        db_stat_dep.sma_stat_dep.tbl_ent.code as ent_code\
+	        db_stat_dep.sma_stat_dep.tbl_ent.code as ent_code, \
+	        tbl_interim_query.period_id as period_id, \
+	        tbl_interim_query.bank_id as bank_id \
             from db_stat_dep.sma_stat_dep.tbl_attr_values \
             inner join \
             ( \
@@ -351,7 +471,11 @@ class Masterdata():
                     (db_stat_dep.sma_stat_dep.\
                         tbl_file_per_schedule.schedule_id)\
                     db_stat_dep.sma_stat_dep. \
-                        tbl_file_per_schedule.id as file_id \
+                        tbl_file_per_schedule.id as file_id, \
+                    db_stat_dep.sma_stat_dep. \
+                        tbl_schedule.period_id as period_id, \
+                    db_stat_dep.sma_stat_dep. \
+                        tbl_schedule.bank_id as bank_id \
                 from db_stat_dep.sma_stat_dep.tbl_schedule \
                 left join db_stat_dep.sma_stat_dep.tbl_file_per_schedule \
                     on db_stat_dep.sma_stat_dep.tbl_schedule.id = \
@@ -491,6 +615,7 @@ class Masterdata():
     
     #===============================MONITOR REPORTS==============================#
     def monitor_report (self,bank_object=None):
+        print (f'bank_object !!!{ bank_object}')
         arguments = ''
         if not bank_object is None:
             n_arg = 0
@@ -509,7 +634,7 @@ class Masterdata():
             query_values = list(bank_object.values())
         else:
             query_values = ''
-
+        print (f'query_values !!!{ query_values}')
         print(f'   #>{datetime.now()}_monitor_report arguments: {arguments}')
         select_query = f"select db_stat_dep.sma_stat_dep.tbl_schedule.id as schedule_id,\
             db_stat_dep.sma_stat_dep.tbl_file_per_schedule.file_id as fps_file_id,\
@@ -1011,35 +1136,42 @@ if (__name__ == '__main__'):
     path = Path(__file__).parent
     print (f'path of config file:  {path}')
     email_conf = json.load (open(path / ("config/email_conf.json")))
+    a1_conf = json.load (open(path / ("config/1A_config.json"), encoding="utf-8"))
     
     
     master_date = Masterdata(email_conf)
-    
 
+    #------------------------------------------------------------------------#
+    # getting schedule from period
+    # from_date = datetime(year=2024, month=1, day=1)
+    # to_date = datetime(year=2024, month=12, day=31)
+    
+    # print (master_date.get_shcedule_by_period(report_type_id=6, \
+    #                                           period_type=4,\
+    #                                           from_date= from_date,\
+    #                                           to_date=to_date)
+    #        )
+    #-------------------------------------------------------------------------#
+   
     # master_date.create_version('ORIG', 'ҳисоботҳои дар шакли ҳамадавраҳа')
     
     # master_date.create_bank(2, '000000005','1805','ҶСП "Аввалин бонки молиявии хурд"',0, 1)
     
-    #for i in range (1,13):
-    #    master_date.create_period(4,2024,i)
+    for i in range (1,13):
+       master_date.create_period(4,2010,i)
   
     # master_date.create_shedule (1, 2, 23, 1, 9)
 
-    conf = json.load (open(path / ("config/report_configs/1HK_config.json"),encoding="utf-8"))
-    tmpl = path / ("config/report_configs/templates/1HK.v0.1101.31082024.xlsx")
+    # conf = json.load (open(path / ("config/report_configs/1HK_config.json"),encoding="utf-8"))
+    # tmpl = path / ("config/report_configs/templates/1HK.v0.1101.31082024.xlsx")
     # tmpl = None
-   # master_date.create_report_type("1A", "v0.000","Ҳайяти кормандон", conf, 4, 0)
+    # master_date.create_report_type("1A", "v0.000","Андоз", a1_conf, 4, 0)
 
     #print (master_date.validate_config())
     # master_date.map_to_template(conf=conf,wb_path=tmpl, worksheet_pass="stat4omor")
 
     # master_date.get_file(890)
-
-
-
-
-
-        
+   
     # master_date.update_bank({'entity_id':80,'type':1, 'code':'0000000086','bic4':'1111','name':'ҶСП "Мой банк!"','label_id':0, 'status':1})
     # master_date.update_bank({'entity_id':80,'bic4':'112','status':1})
     # master_date.update_schedule (1,350)
@@ -1049,24 +1181,23 @@ if (__name__ == '__main__'):
     # master_date.delete_entitie(80)
     # master_date.monitor_report({'from_date':'2024-08-01', 'bic4':'4915','to_date':'2024-08-31','report_code':'1A'})
     # master_date.monitor_report({'bic4':'4915'})
-    master_date.get_file_logs(890)
+#     master_date.get_file_logs(890)
 
 
 
-bics = [1,'00000001',1101,'Бонки миллии Тоҷикистон',0,1],[1,'00000002',1369,'ҶСК "Ориёнбонк"',0,1],[1,'00000003',1626,'БДА ҶТ "Амонатбонк"',0,1],[1,'00000004',5707,'ҶСК "Бонки Эсхата"',0,1],[1,'00000005',1805,'ҶСП "Аввалин бонки молиявии хурд"',0,1],[1,'00000006',1736,'ҶСП "Бонки рушди Тоҷикистон"',0,1],[1,'00000007',1706,'Филиали бонки "Тиҷорат"-и  ҶИЭ дар ш. Душанбе',0,1],[1,'00000008',1779,'ҶСП "Халиқ Бонк Тоҷикистон"',0,1],[1,'00000009',1799,'ҶСП "Кафолатбонк"',0,1],[1,'000000010',5848,'ҶСП Бонки "Арванд"',0,1],[1,'000000011',1808,'ҶСП "Спитамен Бонк" ',0,1],[1,'000000012',1803,'ҶСП "Бонки байналмилалии Тоҷикистон"',0,1],[1,'000000013',1858,'ҶСК "Коммерсбонки Тоҷикистон" ',0,1],[1,'000000014',1900,'ҶСК "Алиф Бонк"',0,1],[1,'000000015',1655,'КВДБССТ "Саноатсодиротбонк"',0,1],[2,'000000016',1841,'ҶСП "Душанбе Сити Бонк"',0,1],[1,'000000017',1820,'ҶДММ ТҚҒ "Васл" ',0,1],[3,'000000018',1720,'ҶСК "Тавҳидбонк"',0,1],[3,'000000019',1823,'ҶДММ ТАҚХ"Зудамал"',0,1],[3,'000000020',5859,'ҶДММ ТАҚХ "Азизӣ-Молия"',0,1],[3,'000000021',1890,'ҶДММ ТАҚХ "Сарват М"',0,1],[3,'000000022',1891,'ҶДММ ТАҚХ "Тезинфоз"',0,1],[3,'000000023',1895,'ҶСП ТАҚХ "Ардо-капитал"',0,1],[3,'000000024',1899,'ҶДММ ТАҚХ "Пайванд гурух"',0,1],[3,'000000025',1875,'ҶДММ ТАҚХ "ФИНКА"',0,1],[3,'000000026',1892,'ҶСП ТАҚХ "Ҳумо"',0,1],[3,'000000027',1878,'ҶДММ ТАҚХ "Фазо С"',0,1],[3,'000000028',1817,'ҶСП ТАҚХ "Ҳамров"',0,1],[3,'000000029',1872,'ҶДММ ТАҚХ "Сомон-Тиҷорат"',0,1],[3,'000000030',1970,'ҶДММ ТАҚХ "Шукр Молия"',0,1],[3,'000000031',1971,'ҶДММ ТАҚХ "ЭМИН-сармоя"',0,1],[3,'000000032',1972,'ҶДММ ТАҚХ "Баракат Молия"',0,1],[3,'000000033',4910,'ЧДММ  ТАКХ  "Фуруз"',0,1],[3,'000000034',5876,'ҶСП ТАҚХ "Имон Интернешнл"',0,1],[3,'000000035',1857,'ҶДММ ТАҚХ "Арғун"',0,1],[3,'000000036',5849,'ҶДММ ТАҚХ "МАТИН"',0,1],[3,'000000037',5880,'ҶДММ ТАҚХ "Сандуқ"',0,1],[4,'000000038',1870,'ҶДММ ТАҚХ "Тамвил"',0,1],[4,'000000039',1907,'ҶДММ ТҚХ "ОКСУС"',0,1],[4,'000000040',4909,'ҶДММ ТҚХ "Меҳнатобод"',0,1],[5,'000000041','0904','ҶДММ ТҚХ "Рушди Куҳистон"',0,1],[5,'000000042',1901,'ФҚХ "НУРИ ҲУМО"',0,1],[5,'000000043',1904,'ФҚХ "Зар"',0,1],[5,'000000044',1924,'ФҚХ "ИМДОДИ ХУТАЛ"',0,1],[5,'000000045',1925,'ФҚХ "Эҳёи кӯҳистон"',0,1],[5,'000000046',1932,'ФҚХ "Қуллаи Умед"',0,1],[5,'000000047',1965,'ФҚХ "Фонди бозтамвил"',0,1],[5,'000000048',2902,'ФҚХ "СОЛИҲИН"',0,1],[5,'000000049',2906,'ФҚХ "Мададгор-Д"',0,1],[5,'000000050',4901,'ФҚХ "Боршуд"',0,1],[5,'000000051',4902,'ФҚХ "Имконият"',0,1],[5,'000000052',4903,'ФҚХ "Чилучор Чашма"',0,1],[5,'000000053',4911,'ФҚХ "ЗАЙНАЛОБИДДИН 1"',0,1],[5,'000000054',4914,'ФҚХ "ПАХТАОБОД"',0,1],[5,'000000055',4915,'ФҚХ "ДЕХКОНАРИК"',0,1],[5,'000000056',4916,'ФҚХ "САРВАТИ ВАХШ"',0,1],[5,'000000057',4917,'ФҚХ "ТУГАРАКИЁН"',0,1],[5,'000000058',5901,'ФҚХ "Имон"',0,1],[5,'000000059',5902,'ФҚХ "Сарпараст"',0,1],[5,'000000060',5903,'ФҚХ "МикроИнвест"',0,1],[5,'000000061',5906,'ФҚХ "Равнақ"',0,1],[5,'000000062',5907,'ФҚХ "Ҳамёрӣ"',0,1],[5,'000000063',5908,'ФҚХ "Барор"',0,1],[5,'000000064',5912,'ФҚХ "Рушди Суғд"',0,1],[5,'000000065',5913,'ФҚХ "Рушди Водии Зарафшон"',0,1],[5,'000000066',1957,'ФҚХ "Роҳнамо"',0,1],[5,'000000067','0901','ФҚХ "Мадина"',0,1]
+# bics = [1,'00000001',1101,'Бонки миллии Тоҷикистон',0,1],[1,'00000002',1369,'ҶСК "Ориёнбонк"',0,1],[1,'00000003',1626,'БДА ҶТ "Амонатбонк"',0,1],[1,'00000004',5707,'ҶСК "Бонки Эсхата"',0,1],[1,'00000005',1805,'ҶСП "Аввалин бонки молиявии хурд"',0,1],[1,'00000006',1736,'ҶСП "Бонки рушди Тоҷикистон"',0,1],[1,'00000007',1706,'Филиали бонки "Тиҷорат"-и  ҶИЭ дар ш. Душанбе',0,1],[1,'00000008',1779,'ҶСП "Халиқ Бонк Тоҷикистон"',0,1],[1,'00000009',1799,'ҶСП "Кафолатбонк"',0,1],[1,'000000010',5848,'ҶСП Бонки "Арванд"',0,1],[1,'000000011',1808,'ҶСП "Спитамен Бонк" ',0,1],[1,'000000012',1803,'ҶСП "Бонки байналмилалии Тоҷикистон"',0,1],[1,'000000013',1858,'ҶСК "Коммерсбонки Тоҷикистон" ',0,1],[1,'000000014',1900,'ҶСК "Алиф Бонк"',0,1],[1,'000000015',1655,'КВДБССТ "Саноатсодиротбонк"',0,1],[2,'000000016',1841,'ҶСП "Душанбе Сити Бонк"',0,1],[1,'000000017',1820,'ҶДММ ТҚҒ "Васл" ',0,1],[3,'000000018',1720,'ҶСК "Тавҳидбонк"',0,1],[3,'000000019',1823,'ҶДММ ТАҚХ"Зудамал"',0,1],[3,'000000020',5859,'ҶДММ ТАҚХ "Азизӣ-Молия"',0,1],[3,'000000021',1890,'ҶДММ ТАҚХ "Сарват М"',0,1],[3,'000000022',1891,'ҶДММ ТАҚХ "Тезинфоз"',0,1],[3,'000000023',1895,'ҶСП ТАҚХ "Ардо-капитал"',0,1],[3,'000000024',1899,'ҶДММ ТАҚХ "Пайванд гурух"',0,1],[3,'000000025',1875,'ҶДММ ТАҚХ "ФИНКА"',0,1],[3,'000000026',1892,'ҶСП ТАҚХ "Ҳумо"',0,1],[3,'000000027',1878,'ҶДММ ТАҚХ "Фазо С"',0,1],[3,'000000028',1817,'ҶСП ТАҚХ "Ҳамров"',0,1],[3,'000000029',1872,'ҶДММ ТАҚХ "Сомон-Тиҷорат"',0,1],[3,'000000030',1970,'ҶДММ ТАҚХ "Шукр Молия"',0,1],[3,'000000031',1971,'ҶДММ ТАҚХ "ЭМИН-сармоя"',0,1],[3,'000000032',1972,'ҶДММ ТАҚХ "Баракат Молия"',0,1],[3,'000000033',4910,'ЧДММ  ТАКХ  "Фуруз"',0,1],[3,'000000034',5876,'ҶСП ТАҚХ "Имон Интернешнл"',0,1],[3,'000000035',1857,'ҶДММ ТАҚХ "Арғун"',0,1],[3,'000000036',5849,'ҶДММ ТАҚХ "МАТИН"',0,1],[3,'000000037',5880,'ҶДММ ТАҚХ "Сандуқ"',0,1],[4,'000000038',1870,'ҶДММ ТАҚХ "Тамвил"',0,1],[4,'000000039',1907,'ҶДММ ТҚХ "ОКСУС"',0,1],[4,'000000040',4909,'ҶДММ ТҚХ "Меҳнатобод"',0,1],[5,'000000041','0904','ҶДММ ТҚХ "Рушди Куҳистон"',0,1],[5,'000000042',1901,'ФҚХ "НУРИ ҲУМО"',0,1],[5,'000000043',1904,'ФҚХ "Зар"',0,1],[5,'000000044',1924,'ФҚХ "ИМДОДИ ХУТАЛ"',0,1],[5,'000000045',1925,'ФҚХ "Эҳёи кӯҳистон"',0,1],[5,'000000046',1932,'ФҚХ "Қуллаи Умед"',0,1],[5,'000000047',1965,'ФҚХ "Фонди бозтамвил"',0,1],[5,'000000048',2902,'ФҚХ "СОЛИҲИН"',0,1],[5,'000000049',2906,'ФҚХ "Мададгор-Д"',0,1],[5,'000000050',4901,'ФҚХ "Боршуд"',0,1],[5,'000000051',4902,'ФҚХ "Имконият"',0,1],[5,'000000052',4903,'ФҚХ "Чилучор Чашма"',0,1],[5,'000000053',4911,'ФҚХ "ЗАЙНАЛОБИДДИН 1"',0,1],[5,'000000054',4914,'ФҚХ "ПАХТАОБОД"',0,1],[5,'000000055',4915,'ФҚХ "ДЕХКОНАРИК"',0,1],[5,'000000056',4916,'ФҚХ "САРВАТИ ВАХШ"',0,1],[5,'000000057',4917,'ФҚХ "ТУГАРАКИЁН"',0,1],[5,'000000058',5901,'ФҚХ "Имон"',0,1],[5,'000000059',5902,'ФҚХ "Сарпараст"',0,1],[5,'000000060',5903,'ФҚХ "МикроИнвест"',0,1],[5,'000000061',5906,'ФҚХ "Равнақ"',0,1],[5,'000000062',5907,'ФҚХ "Ҳамёрӣ"',0,1],[5,'000000063',5908,'ФҚХ "Барор"',0,1],[5,'000000064',5912,'ФҚХ "Рушди Суғд"',0,1],[5,'000000065',5913,'ФҚХ "Рушди Водии Зарафшон"',0,1],[5,'000000066',1957,'ФҚХ "Роҳнамо"',0,1],[5,'000000067','0901','ФҚХ "Мадина"',0,1]
 
-periods = [1,2,3,4,5,6,7,8,9,10,11,23]
+# periods = [1,2,3,4,5,6,7,8,9,10,11,12]
 
-# master_date.create_shedule (2, 78, 1, 1, 300)
-# for period in periods:
-    # master_date.create_shedule (2, 76, period, 1, 350)
-#     for bank_id in range(2,76):
-#         master_date.create_shedule (3, bank_id, period, 1, 350)
-
+# master_date.create_shedule (6, 78, 1, 1, 300)
+    # for period in range(26, 109 + 1):
+    #     for bank_id in range(2, 71 + 1):
+    #         master_date.create_shedule (6, bank_id, period, 1, 350)
 
 
 
-# for el in [
+
+# # for el in [
 #     "4k.000_prev",
 #     "4k.000_curr",
 #     "4k.100_prev",
