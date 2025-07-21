@@ -277,18 +277,19 @@ def get_hello():
                 try:
                     arg = check_file_name(mobile_records[3]) 
                     report = selectOne('tbl_report_type','code',arg['name'],'id,report_period_type,submition_mode') 
+                    if(report is None):
+                        raise Exception(configs['errors']['0203']['ru'])
                     bank_id = selectOne('tbl_entities','bic4',arg['bic4'])
                     period_id = selectOne('tbl_period',None,f"type={report[1]} and to_date="+f"'{arg['date']}'")
 
                     print(f"    отчет и его аргументы из названия--- {arg}")
                     print(f"    подробности отчета из БД report_type--- {report}")
                     print(f"    банк из БД entity--- {bank_id}")
+                    print(f"    отчетный период--- {period_id}")
 
                     if(bank_id is False):
                         raise Exception('Такой банк не существует')
-                    if(report is None):
-                        raise Exception(configs['errors']['0203']['ru'])
-                    if(period_id is None):
+                    if(period_id is False):
                         raise Exception(configs['errors']['0206']['ru'])
                     
 
@@ -472,7 +473,10 @@ def get_hello():
                                                             logs["context"]+=f"{configCell['cell_address']}--------{configs['errors']['0001']['ru']} {excelCell}\n"
                                                             logs["count"]+=1
                                                             continue
-                                                        if(types[configCell["data_type"]]!=type(excelCell) and excelCell!='' and (str(excelCell)!='nan')):
+                                                        strFortrim = ''
+                                                        if isinstance(excelCell,str):
+                                                             strFortrim = excelCell
+                                                        if(types[configCell["data_type"]]!=type(excelCell) and strFortrim.strip()!='' and (str(excelCell)!='nan')):
                                                             try:
                                                                 type(int(excelCell)) 
                                                             except:  
@@ -485,8 +489,9 @@ def get_hello():
                                                             logs["count"]+=1
                                                             print(f"{configCell['cell_address']}--------{configs['errors']['0005']['ru']}\n")
                                                             continue
-                                                        if type(excelCell)==int:
-                                                            if('is_negative_allowed' in configCell and (excelCell<0)!=configCell['is_negative_allowed']): 
+                                                        if type(excelCell)==int or type(excelCell)==float:
+                                                            # if('is_negative_allowed' in configCell and (excelCell<0)!=configCell['is_negative_allowed']): 
+                                                            if('is_negative_allowed' in configCell and (excelCell<0) and configCell['is_negative_allowed']==False): 
                                                                 logs["context"]+=f"{configCell['cell_address']}--------{configs['errors']['0004']['ru']} {excelCell}\n"
                                                                 logs["count"]+=1
                                                                 continue
@@ -517,6 +522,7 @@ def get_hello():
                                                     # print(cnfgMass.keys())
                                                     # print(ent)
                                                     
+                                                    
                                                     for k in data: 
                                                         for i in range(len(data[k])):
                                                             obj = {}
@@ -543,9 +549,7 @@ def get_hello():
 
                                                     # multiple line
                                                     print(f"    добавление данных в БД--- {db_query_values}")
-                                                    execute_values(cursor,
-                                                    "INSERT INTO sma_stat_dep.tbl_attr_values (ent_id,file_per_schedule_id,a_value) VALUES %s",
-                                                    db_query_values)
+                                                    execute_values(cursor,"INSERT INTO sma_stat_dep.tbl_attr_values (ent_id,file_per_schedule_id,a_value) VALUES %s",db_query_values)
                                                     if(int(report[2])==1):    
                                                         postgres_insert_query = f"""UPDATE sma_stat_dep.tbl_schedule SET reporting_window='0' WHERE id='{schedule_records[0]}';"""
                                                         cursor.execute(postgres_insert_query) 
@@ -553,6 +557,14 @@ def get_hello():
 
                                                 except (Exception, psycopg2.Error) as error: 
                                                     print("    Error while fetching data from PostgreSQL", error,traceback.print_exc()) 
+                                                    status = 5
+                                                    logs["context"]+=f"--{error}\n"    
+                                                    logs["count"]+=1
+                                                    log_to_text = f"-Дата и время получения файла -------------------- {logs['upload_date']}\n\n {logs['context']}\n количество найденных ошибок ---------------------------{(logs['count']+logs['comparisen_rules_count'])}" 
+                                                    postgres_insert_query = f"""UPDATE sma_stat_dep.tbl_files SET logs='{log_to_text}', upload_status='{status}' WHERE id='{file_id}';"""
+                                                    cursor.execute(postgres_insert_query) 
+                                                    postgres_insert_query1 = f"""UPDATE sma_stat_dep.tbl_file_upload SET upload_status='{status}' WHERE id='{file_upload_id}';"""
+                                                    cursor.execute(postgres_insert_query1) 
                                                 finally:
                                                     connection.commit()
 
@@ -574,7 +586,7 @@ def get_hello():
                                             for k in data:
                                                 # print(k) 
                                                 conf_length_value = 10**cnfgMass[k]['length']-1
-                                                for i in data.index:
+                                                for i in range(findeCEll(startTrConf)[1],len(data)):
                                                     # if(table_errors_count<1000):    
                                                         if(k==findeCEll(cnfgMass[k]['cell_address'])[0]):
                                                             if (k) in cnfgMass.keys():
@@ -596,13 +608,13 @@ def get_hello():
                                                                     table_errors_count+=1
                                                                     continue
                                                                 
-                                                                if(types[configCell["data_type"]]!=cell_type):
-                                                                    try:
-                                                                        type(int(excelCell)) 
-                                                                    except:  
-                                                                        logs["context"]+=f"{configCell['cell_address']}--------{configs['errors']['0002']['ru']}\n"
-                                                                        table_errors_count+=1
-                                                                        continue
+                                                                #if(types[configCell["data_type"]]!=cell_type):
+                                                                #    try:
+                                                                #       type(int(excelCell)) 
+                                                                #    except:  
+                                                                #        logs["context"]+=f"{configCell['cell_address']}--------{configs['errors']['0002']['ru']}\n"
+                                                                #        table_errors_count+=1
+                                                                #        continue
 
                                                                 if(cell_type==int):
                                                                     if(conf_length_value<abs(excelCell)):
@@ -777,8 +789,9 @@ def get_hello():
                     cursor.execute(postgres_insert_query1) 
                     connection.commit()
                     wb =None
+                    print(f": {logs}")
                 finally:
-                    print(logs)
+                    print(f"logg: {logs}")
                     print(status)
                     # if (wb is None)==False: wb.close()
 
@@ -786,7 +799,7 @@ def get_hello():
             except (Exception, psycopg2.Error) as error:
                 print("Error while fetching data from PostgreSQL", error,traceback.print_exc())
         try:
-            postgres_insert_query = f"select id from sma_stat_dep.tbl_files WHERE upload_status=1 limit 2"
+            postgres_insert_query = f"select id_file_upload from sma_stat_dep.tbl_files WHERE upload_status=1 limit 2"
             # postgres_insert_query = f"select * from sma_stat_dep.tbl_files WHERE id=62 and upload_status=1"
             
             
@@ -816,3 +829,4 @@ if __name__ == "__main__":
 # def get_plugin():
 #     from airflow_clickhouse_plugin.operators.clickhouse import ClickHouseOperator
 #     print(f"clickhouseOperator!!!!!!! with version: {ClickHouseOperator.__class__}")
+
