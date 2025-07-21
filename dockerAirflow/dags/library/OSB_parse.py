@@ -14,7 +14,7 @@ import json
 import traceback
 import collections 
 
-def start_parse():
+def start_parse(schedule_id):
     try:
         # path = Path(__file__).parent.parent.parent
         path = Path(__file__).parent.parent.parent
@@ -34,6 +34,24 @@ def start_parse():
         cursor = connection.cursor()
 
         configs = {
+             "pair_default":{
+                "17559":24406,
+                "15701":22602,
+                "15703":22604,
+                "15705":22606,
+                "15501":24602,
+                "15503":24604,
+                "15505":24606,
+                "15507":24608,
+                "24406":17559,
+                "22602":15701,
+                "22604":15703,
+                "22606":15705,
+                "24602":15501,
+                "24604":15503,
+                "24606":15505,
+                "24608":1550
+        },
             "errors":{
             "0001":{
                 "en":"",
@@ -115,6 +133,11 @@ def start_parse():
                 "ru":"Период указан неправильно \n",
                 "tj":"" 
             },
+            "0207":{
+                "en":"",
+                "ru":"Нет данных для данного КФО на этот период \n",
+                "tj":"" 
+            },
         }
         }  
         
@@ -131,8 +154,15 @@ def start_parse():
                              return False   
           
         def parse_st(report_name,period,bank):
+            logs = {
+                    "count":0,
+                    "comparisen_rules_count":0,
+                    "context":'\n',
+                    'upload_date':datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+                }
             try:
                 report = selectOne('tbl_report_type','code',report_name,'id,report_period_type,submition_mode,validation_config') 
+                print(f"---report:{report}")
                 bank_id = selectOne('tbl_entities','bic4',bank)
                 period_id = selectOne('tbl_period',None,f"type={report[1]} and to_date="+f"'{period}'")
                 if(bank_id is False):
@@ -147,6 +177,23 @@ def start_parse():
                 if(period_id is schedule_records):
                     raise Exception(configs['errors']['0205']['ru'])
                 table = json.loads(report[3])["tables"][0] 
+                # print(f"fileID--------------------------{file_id}")
+                dayGet = datetime.strptime(period,'%Y-%m-%d').day
+                monthGet = datetime.strptime(period,'%Y-%m-%d').month
+                yearGet = datetime.strptime(period,'%Y-%m-%d').year 
+                print(f"{dayGet}-{monthGet}-{yearGet}-{bank}")
+                wb = pd.read_html(f'http://10.10.64.36:80/mim_file/vr_BALANCE_MIM_TXTlist.asp?x_REPORT_DATE={dayGet}%2E{monthGet}%2E{yearGet}&z_REPORT_DATE=%3D&x_BIC4={bank}&z_BIC4=%3D')
+                # print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{wb[1]}')
+                data = []
+                for k in wb[0].values:
+                    if(len(k[0])<100):
+                         data.append(k[0].split())
+                db_query_values = [] 
+                if(len(data)==0):
+                    # print("error!!!!!!!")
+                    raise Exception(configs['errors']['0207']['ru']) 
+                
+                ent_id = selectOne('tbl_ent','code',table['nodes'][0]['code'])
                 postgres_insert_query = f"""
                 WITH inserted AS(
                 INSERT INTO sma_stat_dep.tbl_file_upload 
@@ -156,104 +203,72 @@ def start_parse():
                 INSERT INTO sma_stat_dep.tbl_files
                 (id_file_upload,upload_status,file_name,file)	
                 SELECT id,4,'omor@nbt.tj_'|| NOW(),'' FROM inserted RETURNING id)
-                INSERT INTO sma_stat_dep.tbl_file_per_schedule(file_id,schedule_id)  SELECT id,{schedule_records[0]} FROM inserted_file RETURNING id
+                INSERT INTO sma_stat_dep.tbl_file_per_schedule(file_id,schedule_id)  SELECT id,{schedule_records[0]} FROM inserted_file RETURNING id,file_id
                 ;"""
+                
                 cursor.execute(postgres_insert_query)
                 connection.commit()
-                file_per_schedule_id = cursor.fetchone()[0] 
-                dayGet = datetime.strptime(period,'%Y-%m-%d').day
-                monthGet = datetime.strptime(period,'%Y-%m-%d').month
-                yearGet = datetime.strptime(period,'%Y-%m-%d').year 
-                print()
-                wb = pd.read_html(f'http://10.10.64.36:80/mim_file/vr_BALANCE_MIM_TXTlist.asp?x_REPORT_DATE={dayGet}%2E{monthGet}%2E{yearGet}&z_REPORT_DATE=%3D&x_BIC4={bank}&z_BIC4=%3D')
-                # print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{wb}')
-
-                data = []
-                for k in wb[0].values:
-                    if(len(k[0])<100):
-                         data.append(k[0].split()) 
-                db_query_values = [] 
-                ent_id = selectOne('tbl_ent','code',table['nodes'][0]['code'])
-
+                retur_file_per_schedule_id = cursor.fetchone() 
+                file_per_schedule_id = retur_file_per_schedule_id[0] 
+                file_id = retur_file_per_schedule_id[1] 
                 for k in data: 
                     obj = {}
+                    offsetting_balance = ''
                     # print(k)
                     for i in table['nodes'][0]['attribute']:
+                        # configs["pair_default"]
                         if(i['attr_type']=='account_number'):
                             obj.update({i['attr_type']:k[0]}) 
                         if(i['attr_type']=='balance_dt'):
                             obj.update({i['attr_type']:k[1]}) 
                         if(i['attr_type']=='balance_ct'):
-                            obj.update({i['attr_type']:k[2]})  
+                            obj.update({i['attr_type']:k[2]})   
+                        if(i['attr_type']=='offsetting_balance'):
+                            offsetting_balance = i['attr_type']
+                    acc_num = k[0]
+                    if acc_num in configs["pair_default"]:
+                        pair_number = configs["pair_default"][acc_num]
+                        for ell in data:
+                            if(str(pair_number)==str(ell[0])):
+                                obj.update({offsetting_balance:int(ell[1])+int(ell[2])})
+
                     db_query_values.append([ent_id,file_per_schedule_id,json.dumps(obj,ensure_ascii=False)]) 
                 execute_values(cursor,"INSERT INTO sma_stat_dep.tbl_attr_values (ent_id,file_per_schedule_id,a_value) VALUES %s",db_query_values)
                 connection.commit()
                 postgres_insert_query1 = f"""UPDATE sma_stat_dep.tbl_schedule SET reporting_window='0' WHERE id='{schedule_records[0]}';"""
                 cursor.execute(postgres_insert_query1) 
                 connection.commit()
+                status = 4
+                log_to_text = f"Дата и время получения файла -------------------- {logs['upload_date']}\n\n {logs['context']}\n количество найденных ошибок ---------------------------{(logs['count']+logs['comparisen_rules_count'])}" 
+                postgres_insert_query = f"""UPDATE sma_stat_dep.tbl_files SET logs='{log_to_text}', upload_status='{status}' WHERE id='{file_id}';"""
+                cursor.execute(postgres_insert_query) 
+                connection.commit()
+                return True
             except (Exception, psycopg2.Error) as error: 
-                print("Error while fetching data from PostgreSQL", error,traceback.print_exc())
+                # logs["context"]+=f"--{error}\n"    
+                # logs["count"]+=1
+                # status = 5
+                print("Error: ", error,traceback.print_exc())
                 return False
             finally:
-                print("parsing has finished complite")
-                return True
+                print("parsing finished")
+                
         
 
 
-
-        # trigger of starting of parse 
-        path = Path(__file__).resolve().parent
-        print (f'path of config file:  {path}')
-        filename = path/"words.json"
-        data_str = datetime.today().strftime('%d %B %Y')
-        try:
-            with filename.open('r', encoding='utf-8') as f:
-                json_dict = json.load(f)
-            plaseholders = ', '.join(['%s']*len(json_dict["data"]))
-            if(data_str==json_dict["period"]):
-                 print(json_dict)
-            else:
-                raise Exception('новый отчетный день')
-            postgres_insert_query = f"select sma_stat_dep.tbl_schedule.id,sma_stat_dep.tbl_report_type.code,sma_stat_dep.tbl_entities.bic4,sma_stat_dep.tbl_period.to_date from sma_stat_dep.tbl_schedule join sma_stat_dep.tbl_report_type on sma_stat_dep.tbl_report_type.id=report_type_id join sma_stat_dep.tbl_entities on sma_stat_dep.tbl_entities.id=bank_id join sma_stat_dep.tbl_period on sma_stat_dep.tbl_period.id=period_id where reporting_window>0 and sma_stat_dep.tbl_report_type.code='OSB' and sma_stat_dep.tbl_schedule.id not in ({plaseholders}) limit 1;"
-            if not plaseholders:
-                raise Exception('Список исключений пуст')
-        except:
-            json_dict = {
-                "period":data_str,
-                "data":[]
-            }
-            with filename.open('w', encoding='utf-8') as f:
-                json.dump(json_dict,f,ensure_ascii=False,indent=4)
-            postgres_insert_query = f"select sma_stat_dep.tbl_schedule.id,sma_stat_dep.tbl_report_type.code,sma_stat_dep.tbl_entities.bic4,sma_stat_dep.tbl_period.to_date from sma_stat_dep.tbl_schedule join sma_stat_dep.tbl_report_type on sma_stat_dep.tbl_report_type.id=report_type_id join sma_stat_dep.tbl_entities on sma_stat_dep.tbl_entities.id=bank_id join sma_stat_dep.tbl_period on sma_stat_dep.tbl_period.id=period_id where reporting_window>0 and sma_stat_dep.tbl_report_type.code='OSB' limit 1;" 
-            
-        finally:
-            print(postgres_insert_query)
-            cursor.execute(postgres_insert_query,json_dict["data"])
-            schedule_records = cursor.fetchone()
-            print(schedule_records)
-            datestring  = str(schedule_records[3].isoformat())
-            # parse_st("OSB",'2024-04-30','5707')
-            parse_res = parse_st(schedule_records[1],datestring,schedule_records[2])
-            if(parse_res==False):
-                json_dict["data"].append(schedule_records[0])
-                with filename.open('w', encoding='utf-8') as f:
-                    json.dump(json_dict,f,ensure_ascii=False,indent=4)
-                print(f"file added! {filename}")
-
-        # postgres_insert_query = f"select sma_stat_dep.tbl_schedule.id,sma_stat_dep.tbl_report_type.code,sma_stat_dep.tbl_entities.bic4,sma_stat_dep.tbl_period.to_date from sma_stat_dep.tbl_schedule join sma_stat_dep.tbl_report_type on sma_stat_dep.tbl_report_type.id=report_type_id join sma_stat_dep.tbl_entities on sma_stat_dep.tbl_entities.id=bank_id join sma_stat_dep.tbl_period on sma_stat_dep.tbl_period.id=period_id where reporting_window>0 and sma_stat_dep.tbl_report_type.code='OSB' limit 1;" 
-        # cursor.execute(postgres_insert_query)
-        # schedule_records = cursor.fetchone()
-        # print(schedule_records)
-        # datestring  = str(schedule_records[3].isoformat())
-        # # parse_st("OSB",'2024-04-30','5707')
-        # parse_res = parse_st(schedule_records[1],datestring,schedule_records[2])
-        # if(parse_res==False):
-            
-        #     data.append(schedule_records[0])
-
-        #     with filename.open('w', encoding='utf-8') as f:
-        #         json.dump(data,f,ensure_ascii=False,indent=4)
-        #     print(f"file added! {filename}")
+ 
+        schedule_records = selectOne("tbl_schedule","id",schedule_id,"*")
+        # print(f":::::::::::::::::{schedule_records}")
+        perriod = str(selectOne("tbl_period","id",schedule_records[3],"to_date")[0].isoformat())
+        report = selectOne("tbl_report_type","id",schedule_records[1],"code")[0]
+        bank = selectOne("tbl_entities","id",schedule_records[2],"bic4")[0]
+        # parse_st("OSB",'2024-04-30','5707')
+        parse_res = parse_st(report,perriod,bank)
+        print(f"parse result:{parse_res}")
+        if(parse_res==True):
+            return True
+        else: return False
+        
 
     finally:
             if connection:
