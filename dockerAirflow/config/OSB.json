@@ -1,0 +1,84 @@
+{
+        "config_version": "0",
+        "report_name": "OSB",
+        "tables": [
+            {
+                "sheet_name": "ОСБ",
+                "table_id": "ОСБ",
+                "table_type": "webparse",
+                "nodes": [
+                    {
+                        "code": "balance_account",
+                        "attribute": [
+                            {
+                                "cell_address": "A2",
+                                "read_ender": true,
+                                "data_type": "int",
+                                "length": 7,
+                                "is_empty_allowed": false,
+                                "is_negative_allowed": false,
+                                "attr_type": "account_number",
+                                "attr_allowed_value": [],
+                                "unit": ""
+                            },
+                            {
+                                "cell_address": "B2",
+                                "read_ender": true,
+                                "data_type": "int",
+                                "length": 7,
+                                "is_empty_allowed": false,
+                                "is_negative_allowed": false,
+                                "attr_type": "balance_dt",
+                                "attr_allowed_value": [],
+                                "unit": "TJS"
+                            },
+                            {
+                                "cell_address": "C2",
+                                "read_ender": true,
+                                "data_type": "int",
+                                "length": 7,
+                                "is_empty_allowed": false,
+                                "is_negative_allowed": false,
+                                "attr_type": "balance_ct",
+                                "attr_allowed_value": [],
+                                "unit": "TJS"
+                            },
+                            {
+                                "cell_address": "D2",
+                                "read_ender": true,
+                                "data_type": "int",
+                                "length": 7,
+                                "is_empty_allowed": false,
+                                "is_negative_allowed": false,
+                                "attr_type": "report_date",
+                                "attr_allowed_value": [],
+                                "unit": ""
+                            },
+                            {
+                                "cell_address": "E2",
+                                "read_ender": true,
+                                "data_type": "int",
+                                "length": 7,
+                                "is_empty_allowed": false,
+                                "is_negative_allowed": false,
+                                "attr_type": "bic4",
+                                "attr_allowed_value": [],
+                                "unit": ""
+                            },
+                            {
+                                "cell_address": "F2",
+                                "read_ender": true,
+                                "data_type": "int",
+                                "length": 10,
+                                "is_empty_allowed": false,
+                                "is_negative_allowed": false,
+                                "attr_type": "offsetting_balance",
+                                "attr_allowed_value": [],
+                                "unit": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

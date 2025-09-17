@@ -1,0 +1,82 @@
+{
+    "config_version": "0",
+    "report_name": "public_sector",
+    "tables": [
+        {
+            "sheet_name": "Sheet1",
+            "table_id": "Sheet1",
+            "table_type": "fixed",
+            "nodes": [
+                {
+                    "code": "macro_revenue",
+                    "cell_address": "J2",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "somoni"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                },
+                {
+                    "code": "macro_expenditure",
+                    "cell_address": "J3",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "somoni"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                },
+                {
+                    "code": "macro_deficit_surplus",
+                    "cell_address": "J4",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "somoni"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,485 @@
+{
+    "id_row-index":{
+        "xl_column": 1,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"№"
+        },
+    "accounts_code_acc-numb":{
+        "xl_column": 2,
+        "data_type": "str",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Ҳисоби тавозунии қарз"
+        },
+    "accounts_code_str-unit":{
+        "xl_column": 3,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Воҳидҳои сохторӣ"
+        },
+    "borrowers_descr_name-full":{
+        "xl_column": 4,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Номи қарзгир"
+        },
+    "borrowers_code_entity-type":{
+        "xl_column": 5,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Намуди қарзгир (шахси воқеӣ, шахси ҳуқуқӣ)"
+        },
+    "borrowers_id_tax-id":{
+        "xl_column": 6,
+        "data_type": "str",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Рақами мушаххаси андозсупоранда"
+        },
+    "borrowers_bool_related-party":{
+        "xl_column": 7,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Оё қарз ба шахси вобаста додашуда аст? ('ҳа' ё 'не')"
+        },
+    "borrowers_id_erconnection-group":{
+        "xl_column": 8,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Рақамгузории гурӯҳҳои қарзҳои байни якдигар вобаста (як гуруҳ - '1', дигар гуруҳ - '2' ва ғайра - '3','4','5'....)"
+        },
+    "agreements_code_loan-type":{
+        "xl_column": 9,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Намуди қарз (қарз, қарзи байнибонкӣ, ҷойгиркунии муҳлатнок, хати қарзӣ, овердрафт, лизинг, аккредитив ва ғайра)"
+        },
+    "borrowers_code_economic-sector-1":{
+        "xl_column": 10,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Соҳаи қарзгир тибқи ҳисоботи молиявии ФИНА (давлатӣ, тиҷоратӣ, СХМ, кишоварзӣ, шахсони воқеӣ, дигар)"
+        },
+    "agreements_date_funds_issue_dejuro":{
+        "xl_column": 11,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Санаи додани карз аз руи шартнома"
+        },
+    "agreements_id_aggrement_code":{
+        "xl_column": 12,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Раками шартнома"
+        },
+    "schedules_date_fund_issue_defacto":{
+        "xl_column": 13,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Санаи воқеан додашудаи қарз"
+        },
+    "schedules_date_prolongation-date":{
+        "xl_column": 14,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Санаи тамдиди қарз"
+        },
+    "agreements_number_prolongation-number":{
+        "xl_column": 15,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Шумораи тамдиди қарз"
+        },
+    "schedules_date_funds-repayment":{
+        "xl_column": 16,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Санаи баргар-донидани қарз"
+        },
+    "agreements_rate_int_erest_nominal":{
+        "xl_column": 17,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизи қарз (%)"
+        },
+    "agreements_rate_int_erest_effective":{
+        "xl_column": 18,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Меъёри фоизи самаранокӣ (солона )"
+        },
+    "agreements_code_loan_currency":{
+        "xl_column": 19,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Коди асъор"
+        },
+    "agreements_amount_requested-amount_nl":{
+        "xl_column": 20,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи дархостшуда (номинал)"
+        },
+    "payments_amount_issued-amount_nl":{
+        "xl_column": 21,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи қарзи воқеан додашуда (номинал)"
+        },
+    "payments_amount_repaid-amount_nl":{
+        "xl_column": 22,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Пардохти қарз (номинал)"
+        },
+    "accounts-balance_amount_outstanding-amount_nl":{
+        "xl_column": 23,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Бақияи қарз (номинал)"
+        },
+    "accounts-balance_amount_outstanding_nc":{
+        "xl_column": 24,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Бақияи қарз (бо сомонӣ)"
+        },
+    "accounts-balance_amount_creditline-unused_nc":{
+        "xl_column": 25,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Қисми боқимондаи хати қарзӣ"
+        },
+    "payments_amount_amount-overdued_principal_nl":{
+        "xl_column": 26,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи батаъхирафтодаи қарзи асосӣ (номинал)"
+        },
+    "payments_days_days-overdued_principal":{
+        "xl_column": 27,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Рӯзҳои батаъхирафтода аз рӯи маблағи қарз"
+        },
+    "schedules_amount_outstanding-amount_int_erest_nl":{
+        "xl_column": 28,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизҳои ҳисоб кардашуда (номинал)"
+        },
+    "payments_amount_repaid-amount_int_erest_nl":{
+        "xl_column": 29,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизҳои пардохташуда (номинал)"
+        },
+    "payments_amount_payble-amount_int_erest_nl":{
+        "xl_column": 30,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизҳои пардохтНАшуда (номинал)"
+        },
+    "payments_days_days-overdued_int_erest":{
+        "xl_column": 31,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Рӯзҳои таъхирафтода аз рӯи бақияи фоизҳои пардохтНАшуда"
+        },
+    "payments_amount_accrued_int_erest-outsys_nl":{
+        "xl_column": 32,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизҳои хисобкар-дашудаи ғайринизомӣ (номинал)"
+        },
+    "payments_amount_repaid-amount_int_erest-outsys_nc":{
+        "xl_column": 33,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизҳои ҳисобкар-дашудаи пардохташудаи ғайринизомӣ (номинал)"
+        },
+    "payments_amount_outstanding-amount_int_erest-outsys_nc":{
+        "xl_column": 34,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Фоизҳои ҳисобкар-дашудаи пардохтаНАшудаи ғайринизомӣ (номинал)"
+        },
+    "payments_days_days-overdued_int_erest-outsys":{
+        "xl_column": 35,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Рӯзҳои таъхирафтода аз рӯи бақияи фоизҳои пардохтНАшуда  ғайринизомӣ"
+        },
+    "borrowers_code_economic-sector-2":{
+        "xl_column": 36,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Соҳаҳои иқтисодиёт (Саноат; кишоварзӣ;)ташкилотхои молияви; алока; наклиёт; тичорат; сохтмон; ипотека; саноати коркардабарои; хизматрасонии маиши; давлат; карзи истеъмоли ё дигар)"
+        },
+    "collaterals_code_type-1":{
+        "xl_column": 37,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Таъминоти қарз (зомин, бе гарав, омехта, амволи ғайриманқул, пасандоз, кафолат, тилло ва ғ.)"
+        },
+    "collaterals_desc_loaction-address":{
+        "xl_column": 38,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Мавқеи ҷойгиршавии гарави амволи ғайриманқул"
+        },
+    "collaterals_code_location-region":{
+        "xl_column": 39,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Мавқеӣ ҷойгиршавии гарав аз рӯи минтақа (ш.Душанбе, Суғд, Хатлон, ВМКБ, НТМ)"
+        },
+    "collaterals_amount_value_prudential_nc":{
+        "xl_column": 40,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Арзиши гарав мувофики Замимаи №4 Дастурамали №215 БМТ                 (бо сомонӣ)"
+        },
+    "collaterals_date_last-revaluation-date":{
+        "xl_column": 41,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Санаи охирон баҳогузории гарав "
+        },
+    "collaterals_amount_value_revaluated_nc":{
+        "xl_column": 42,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи охирон баҳогузоришуда"
+        },
+    "collaterals_code_collecteral-eligibility-lvl":{
+        "xl_column": 43,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Сатҳи ҷоизи таъминнокӣ тибқи замимаи Дастурамали 215 (%)"
+        },
+    "collaterals_code_type-2":{
+        "xl_column": 44,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Таъминноки"
+        },
+    "collaterals_amount_insured-amount_insured_nc":{
+        "xl_column": 45,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи суғурташудагии гарав (бо сомонӣ)"
+        },
+    "agreements_bool_is-under-litigation":{
+        "xl_column": 46,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Қарзҳои дар раванди судӣ (ха ё не)"
+        },
+    "borrowers_code_credit-risk-group_group":{
+        "xl_column": 47,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Гуруҳи хавф (қолабӣ - '1', зери назорат - '2', ғайриқолабӣ - '3', шӯбҳанок - '4' ё беэътимод - '5')"
+        },
+    "accounts-balance_amount_provision-calculated_principal_nc":{
+        "xl_column": 48,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи ҳисобшудаи ФПТИ аз рӯи қарз"
+        },
+    "accounts-balance_amount_provision-created_principal_nc":{
+        "xl_column": 49,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи воқеан ташаккулдодашудаи ФПТИ аз рӯи қарз"
+        },
+    "accounts-balance_amount_provision-short_principal_nc":{
+        "xl_column": 50,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи ташаккулНАдодашудаи ФПТИ аз рӯи қарз"
+        },
+    "accounts-balance_amount_provision-calculated_int_erest_nc":{
+        "xl_column": 51,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи ҳисобшудаи ФПТИ аз рӯи фоизҳо"
+        },
+    "accounts-balance_amount_provision-created_int_erest_nc":{
+        "xl_column": 52,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи воқеан ташакулдодашудаи ФПТИ аз рӯи фоизҳо"
+        },
+    "accounts-balance_amount_provision-short_int_erest_nc":{
+        "xl_column": 53,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи ташакулНАдодашудаи ФПТИ аз рӯи фоизҳо"
+        },
+    "agreements_amount_accrual-method_nc":{
+        "xl_column": 54,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Методи ҳисоби пардохти қарз (оддӣ - '0',  аннуитет - '1' ё дифферен. - '2')"
+        },
+    "agreements_days_concession_principal":{
+        "xl_column": 55,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Чанд моҳ имтиёз барои қарзи асосӣ дорад"
+        },
+    "agreements_days_concession_int_erest":{
+        "xl_column": 56,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Чанд моҳ имтиёз барои пардохти фоиз дорад"
+        },
+    "borrowers_amount_wage-mnth-average_nc":{
+        "xl_column": 57,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Маблағи даромади моҳонаи қарзгир (бо сомонӣ)"
+        },
+    "borrowers_bool_is-hedged":{
+        "xl_column": 58,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Оё маблағи даромади қарзгир бо асъори хориҷӣ ҳаст? ('ха' ё 'не')"
+        },
+    "agreements_bool_is-indexed":{
+        "xl_column": 59,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Вобастакунии қарзи сомонӣ бо дигар асъор (индексатсия) ('ха' ё 'не')"
+        },
+    "agreements_code_untilization-region":{
+        "xl_column": 60,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Рамзи шахру нохияхо"
+        },
+    "agreements_desc_untilization-region":{
+        "xl_column": 61,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Минтақаи истифодаи қарз (ш.Душанбе, в.Хатлон, в.Суғд, ВМКБ ва НТҶ)"
+        },
+    "collaterals_amount_residential-property_nc":{
+        "xl_column": 62,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_истиқоматӣ"
+        },
+    "collaterals_amount_commercial-property_nc":{
+        "xl_column": 63,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_тиҷоратӣ"
+        },
+    "collaterals_amount_deposit_nc":{
+        "xl_column": 64,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_пасандоз"
+        },
+    "collaterals_amount_precious_metals_nc":{
+        "xl_column": 65,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_тилло"
+        },
+    "collaterals_amount_bank-guarantee_nc":{
+        "xl_column": 66,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_кафолат"
+        },
+    "collaterals_amount_personal-guarantee_nc":{
+        "xl_column": 67,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_зомин"
+        },
+    "collaterals_amount_others_nc":{
+        "xl_column": 68,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_дигар"
+        },
+    "collaterals_amount_uncolleterized_nc":{
+        "xl_column": 68,
+        "data_type": "int",
+        "specific_format": null,"converter": null,
+        "read_function": null,
+        "is_empty_allowed": true, "is_negative_allowed": false,"length": 10,"description":"Амволи ғайриманқул_бетаъмин"
+        }
+}

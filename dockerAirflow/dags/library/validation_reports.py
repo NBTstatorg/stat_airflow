@@ -416,6 +416,23 @@ def get_hello():
                         if collections.Counter(wb.sheetnames) == collections.Counter(configList):
                                 # entMass = {}
                                 for table in cnf:
+                                                                # ======================== password check===========================
+                                # for sheetname in wb.sheetnames:
+                                    # print(table['sheet_name'])
+                                    # print(wb[table['sheet_name']])
+                                    if("protection" in table):
+                                        if(wb[table['sheet_name']].protection.hashValue!=table["protection"]):
+                                            status = 5
+                                            logs["context"]="Пароль файла не соответствует паролю стандартного шаблона отчета, используйте установленный стандартныйшаблонотчета"    
+                                            logs["count"]+=1
+                                            log_to_text = f"Дата и время получения файла -------------------- {logs['upload_date']}\n\n {logs['context']}\n количествонайденныхошибок --------------------{logs['count']}" 
+                                            postgres_insert_query = f"""UPDATE sma_stat_dep.tbl_files SET logs='{log_to_text}', upload_status='{status}' WHERE id='{file_id}';"""
+                                            cursor.execute(postgres_insert_query) 
+                                            connection.commit()
+                                            postgres_insert_query1 = f"""UPDATE sma_stat_dep.tbl_file_upload SET upload_status='{status}' WHERE id='{file_upload_id}';"""
+                                            cursor.execute(postgres_insert_query1) 
+                                            connection.commit()
+                                            raise Exception('Error password has changed')  
                                     # entMass[table['sheet_name']] = {}
                                     # if not have nodes
                                     if('nodes' in table):
