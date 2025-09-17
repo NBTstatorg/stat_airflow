@@ -1,0 +1,128 @@
+{
+    "config_version": "0",
+    "report_name": "price_indices",
+    "tables": [
+        {
+            "sheet_name": "Sheet1",
+            "table_id": "Sheet1",
+            "table_type": "fixed",
+            "nodes": [
+                {
+                    "code": "macro_cpi",
+                    "cell_address": "J2",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "percent"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                },
+                {
+                    "code": "macro_food_goods",
+                    "cell_address": "J3",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "percent"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                },
+                {
+                    "code": "macro_non_food_goods",
+                    "cell_address": "J4",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "percent"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                },
+                {
+                    "code": "macro_services",
+                    "cell_address": "J5",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "percent"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                },
+                {
+                    "code": "macro_ppi_industry",
+                    "cell_address": "J6",
+                    "read_ender": true,
+                    "data_type": "float",
+                    "length": 9,
+                    "is_empty_allowed": true,
+                    "is_negative_allowed": false,
+                    "attribute": [
+                        {
+                            "attr_type": "source",
+                            "attr_value": "goscomstat"
+                        },
+                        {
+                            "attr_type": "unit",
+                            "attr_value": "percent"
+                        },
+                        {
+                            "attr_type": "frequancy",
+                            "attr_value": "month"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
