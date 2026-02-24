@@ -1,5 +1,5 @@
 import psycopg2
-import json
+import json, re, random
 import pandas as pd
 # import xlwings 
 from datetime import datetime
@@ -14,6 +14,16 @@ import openpyxl
 #==============================CLASS: Masterdata==============================#
 #=============================================================================#
 class Masterdata():
+    file_name_pattern = "\\d{1}\\w{1,3}\\.[vV]\\d{1,2}\\.\\d{4}\\.\\d{2}\\d{2}\\d{4}\\.xlsx"
+    def is_attachment_name_valid(self, file_name: str) -> bool: 
+    # Check the name of string again regular expression and return            #
+    # result in boolean                                                       #
+        if (re.compile (self.file_name_pattern).match(file_name) is not None)\
+           and \
+           len (re.compile (self.file_name_pattern).match(file_name).group())\
+           == len(file_name):
+            return True
+        return False
     def __init__(self, conf:json=None, rules:json = None):
         if (conf is None):
             txt = f'#>{datetime.now()}_User@StatDep: Failed to create '
@@ -266,6 +276,65 @@ class Masterdata():
             except(Exception, psycopg2.Error) as error: 
                 print(error)
                 return error
+            
+#===============================SET FILE===============================#        
+    def set_file(self, uidl : int, file_id: int, path: Path):
+        if not path.exists() or not path.is_file():
+            print(f"Ошибка: Файл {path} не найден.")
+            return
+
+        attachment_name = path.name
+        with open(path, "rb") as f:
+            attachment = f.read()
+
+        files_status = 0
+        logs = None
+        if not self.is_attachment_name_valid(attachment_name): 
+            upload_status = 5
+            files_status = 5
+            logs = "Ошбика в названии файла! Название должно соответствовать шаблону: REPORTNAME.vVERSION.BIC4.YYYY.MMDDHHMM.xlsx." 
+        else:
+            upload_status = 1
+            files_status = 1
+
+        query = """
+            WITH uploads_id (id) AS (
+                INSERT INTO sma_stat_dep.tbl_file_upload 
+                (UID, fetch_id, uploaded_datetime, upload_status, channel) 
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+            ) 
+            INSERT INTO sma_stat_dep.tbl_files 
+            (id_file_upload, upload_status, file_name, file , logs)
+            SELECT id, %s, %s, %s, %s FROM uploads_id;
+        """
+
+        insert_values = [
+            uidl,         
+            file_id,
+            datetime.now(),
+            upload_status, 
+            0,
+            files_status, 
+            attachment_name, 
+            attachment,
+            logs
+        ]
+
+        try:
+            with psycopg2.connect(
+                dbname=self.db_name, 
+                user=self.db_user, 
+                password=self.db_pass, 
+                host=self.db_host
+            ) as conn:
+                print(f'   #>{datetime.now()}_connection to db is set.') 
+                with conn.cursor() as cursor:
+                    cursor.execute(query, insert_values)
+                    print(f'   #>{datetime.now()}_file {attachment_name} uploaded successfully.')
+                    
+        except Exception as e:
+            print(f"Ошибка при загрузке файла в БД: {e}")
             
 
 #===============================GET FILE_LOGS===============================#        
@@ -1134,9 +1203,10 @@ class Masterdata():
 if (__name__ == '__main__'):
 
     path = Path(__file__).parent
+    # print(path)
     print (f'path of config file:  {path}')
     email_conf = json.load (open(path / ("config/email_conf.json")))
-    a1_conf = json.load (open(path / ("config/1A_config.json"), encoding="utf-8"))
+    # a1_conf = json.load (open(path / ("config/1A_config.json"), encoding="utf-8"))
     
     
     master_date = Masterdata(email_conf)
@@ -1157,8 +1227,8 @@ if (__name__ == '__main__'):
     
     # master_date.create_bank(2, '000000005','1805','ҶСП "Аввалин бонки молиявии хурд"',0, 1)
     
-    for i in range (1,13):
-       master_date.create_period(4,2010,i)
+    # for i in range (1,13):
+    #    master_date.create_period(4,2010,i)
   
     # master_date.create_shedule (1, 2, 23, 1, 9)
 
@@ -1171,7 +1241,10 @@ if (__name__ == '__main__'):
     # master_date.map_to_template(conf=conf,wb_path=tmpl, worksheet_pass="stat4omor")
 
     # master_date.get_file(890)
-   
+    
+    
+    master_date.set_file(file_id=101, uidl=1111, path=path / ("1HK.v0.1626.31012024.xlsx"))
+
     # master_date.update_bank({'entity_id':80,'type':1, 'code':'0000000086','bic4':'1111','name':'ҶСП "Мой банк!"','label_id':0, 'status':1})
     # master_date.update_bank({'entity_id':80,'bic4':'112','status':1})
     # master_date.update_schedule (1,350)
@@ -1244,12 +1317,7 @@ if (__name__ == '__main__'):
 #     "4k.625_curr",
 #     "4k.700_prev",
 #     "4k.700_curr"
-# ]:master_date.create_ent (el)
-
-
-
-
-
+# ]:master_date.create_ent (el) 
 # def misol_list(val,list=list()):
 #     list.append(val)
 #     return list
